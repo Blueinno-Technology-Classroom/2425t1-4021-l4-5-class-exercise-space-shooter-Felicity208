@@ -1,10 +1,14 @@
 import pgzrun
 import math
 import random
+import time
+from pgzhelper import * 
+
 
 WIDTH = 1024
 HEIGHT = 768
 
+background = Actor('blue')
 player = Actor("playership1_red")
 player.x = WIDTH/2
 player.bottom = HEIGHT
@@ -12,7 +16,7 @@ playerlasers = []
 enemies = []
 enemylasers = []
 
-player.hp = 10
+player.hp = 100
     
 
 def update():
@@ -35,12 +39,17 @@ def update():
         player.bottom = min(HEIGHT, player.bottom)
 
         if keyboard.space:
+            sounds.sfx_laser2.play()
             playerlaser = Actor("laserred05")
             playerlaser.pos = player.pos
+            if enemies:
+                playerlaser.point_towards(random.choice(enemies))
+            else:
+                playerlaser.angle = 90
             playerlasers.append (playerlaser)
 
         for l in playerlasers:
-            l.y -= 5
+            l.move_forward(7)
             if l.bottom < 0:
                 playerlasers.remove(l)
             else:
@@ -54,29 +63,35 @@ def update():
 
 
         if random.randint(0, 100) < 5:
-            enemy = Actor("enemyblack2")
+            enemy_skin = random.choice(['enemyblack1', 'enemyred4' , 'enemygreen2', 'enemyblue2'])
+            enemy = Actor(enemy_skin)
             enemy.x = random.randint(0, WIDTH)
             enemy.top = 25
             enemies.append (enemy)
             
 
         for e in enemies:
-            if random.randint(0, 500) < 3:
-                enemylaser = Actor('lasergreen07')
+            if random.randint(0, 100) < 5:
+                enemylaser = Actor('lasergreen13')
                 enemylaser.pos = e.pos
+                enemylaser.point_towards(player)
                 enemylasers.append(enemylaser)
+            e.point_towards(player)
+            e.move_forward(5)
 
 
         for x in enemylasers:
-            x.y += 7
+            x.move_forward(7)
             if x.top > HEIGHT:
-                enemylasers.remove(x)
+                 enemylasers.remove(x)
             else:
                 if x.colliderect(player):
                     enemylasers.remove(x)
                     player.hp -= 1
-    
-                
+                    sounds.mech_ohno.play()
+                    if player.hp == 0:
+                        time.sleep (0.3)
+                        sounds.gun_shoot.play()
 
             
     
@@ -84,6 +99,7 @@ def update():
 
 def draw():
     screen.clear()
+    background.draw()
     for e in enemies:
         e.draw()
     player.draw()
