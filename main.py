@@ -78,6 +78,9 @@ def update():
                 enemylasers.append(enemylaser)
             e.point_towards(player)
             e.move_forward(5)
+            if e.collide_pixel(player):
+                enemies.remove(e)
+                player.hp -= 1 
 
 
         for x in enemylasers:
@@ -98,18 +101,23 @@ def update():
      
 
 def draw():
-    screen.clear()
-    background.draw()
-    for e in enemies:
-        e.draw()
-    player.draw()
-    for l in playerlasers:
-        l.draw()
-    for x in enemylasers:
-        x.draw()
-    screen.draw.filled_rect(Rect(0,0, WIDTH, 20), 'red')
-    screen.draw.filled_rect(Rect(0,0,WIDTH * player.hp/100, 20), 'green')
-    screen.draw.text(f'{player.hp}/100',  center=(WIDTH/2, 10), color = 'white')
+    if player.hp > 0:
+        screen.clear()
+        background.draw()
+        for e in enemies:
+            e.draw()
+        player.draw()
+        for l in playerlasers:
+            l.draw()
+        for x in enemylasers:
+            x.draw()
+        screen.draw.filled_rect(Rect(0,0, WIDTH, 20), 'red')
+        screen.draw.filled_rect(Rect(0,0,WIDTH * player.hp/100, 20), 'green')
+        screen.draw.text(f'{player.hp}/100',  center=(WIDTH/2, 10), color = 'white')
+    else:
+        screen.clear()
+        screen.draw.text('Game Over', center = (WIDTH/2, HEIGHT/2), fontsize = 100)
+    
 
 
 pgzrun.go()
